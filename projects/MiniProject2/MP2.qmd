@@ -22,16 +22,15 @@ library(tidyverse)
 
 We chose to gather data from the openFDA API. This API serves public data from the Food and Drug Administration about drugs, devices, and foods. It only has publicly available data, so there are no sensitive personal details. We hope to use this data to show a correlation between age or sex and certain adverse effects. We also want to see if some drugs are more likely to cause serious side effects compared to other drugs, and what reactions are most common.
 
-Thus, we decided to scrape reports about adverse drug effects on patients, and filter to only include instances where the patient had severe side effects (Death, life threatening condition, hospitalization, etc). Each report has a unique report ID, details about the patients age and sex, what drug they used, how serious the side effects were, and what their reaction to the drug was. We can group the data by age group, sex, medication name, and create plots to show the size of each group and see if there is a causal relationship between 2 or more of the variables. 
-
+Thus, we decided to scrape reports about adverse drug effects on patients, and filter to only include instances where the patient had severe side effects (Death, life threatening condition, hospitalization, etc). Each report has a unique report ID, details about the patients age and sex, what drug they used, how serious the side effects were, and what their reaction to the drug was. We can group the data by age group, sex, medication name, and create plots to show the size of each group and see if there is a causal relationship between 2 or more of the variables.
 
 ```{r}
 #key <- readLines("api_token") #Daniel key
 key <- "PDPhCwLKWX5EzEoCNrgEhaeVfK5ojIypQOHraqB8" #Cathal key (shhh)
 ```
 
-
 # Querying the FDA Open API
+
 ```{r}
 #| eval: FALSE
 #| message: FALSE
@@ -121,7 +120,6 @@ write.csv(drugs, "drugs_tbl.csv")
 
 ```
 
-
 Our Data:
 
 ```{r}
@@ -182,7 +180,7 @@ drugs |>
 
 ```
 
-These tree maps give some indication of which drugs caused the most serious side effects. In both plots, we can see that the distribution is relatively even among the drugs, as it seems that most of them only occur one or two times. Lipitor stands out as having the most incidents, and we can see that it also has one death associated with it in the second plot. This plot also reveals that Glivec, while it had appeared benign enough, actually caused the highest number of deaths in the data. 
+These tree maps give some indication of which drugs caused the most serious side effects. In both plots, we can see that the distribution is relatively even among the drugs, as it seems that most of them only occur one or two times. Lipitor stands out as having the most incidents, and we can see that it also has one death associated with it in the second plot. This plot also reveals that Glivec, while it had appeared benign enough, actually caused the highest number of deaths in the data.
 
 ```{r}
 #| message: FALSE
@@ -195,4 +193,3 @@ drugs |>
 ```
 
 Unsurprisingly, the most common age for incidents in the data set is in the sixties. However, this plot also highlights that some of the drugs affected children.
-
