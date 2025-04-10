@@ -1,14 +1,22 @@
 ---
-title: "MeeQuartoWebsite"
+title: "Cathal Mee"
+image: CathalHeadshot2.jpg
+2toc: false
+about: 
+  template: jolla
+  image-shape: round
+  image-width: 17em
+  links:
+    - text: LinkedIn
+      href: https://linkedin.com/in/cathal-mee-b148b21aa
+    - text: GitHub
+      href: https://github.com/cmee123
+    - text: Email
+      href: mailto:mee2@stolaf.edu
 ---
 
-This is a Quarto website.
+Cathal Mee, from St. Paul, Minnesota, is a dedicated tennis player, entrepreneur, and computer science student with a passion for sustainability and innovation in sports. As a college tennis player, he balances his academic pursuits in environmental science, sustainability, and computer science with his love for the game.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+He is the co-founder of Roseville Tennis Camps, a community-driven program that offers affordable and inclusive tennis lessons for juniors and adults in Roseville, Minnesota. With an emphasis on skill development and social interaction, Cathal and his co-founder, Pedro, strive to make tennis more accessible compared to traditional programs.
 
-```{r}
-1 + 1
-```
-
-git commit
-
+Cathal is also passionate about fishing and game development, currently working on Spot-A-Fish, an app for anglers to log their catches, as well as a fishing-themed game inspired by Cookie Clicker. Whether on the court, at the stringing machine, or coding his next project, he is always looking for ways to merge his interests in technology, sports, and sustainability.

@@ -3,18 +3,22 @@ project:
   output-dir: docs
 
 website:
-  title: "MeeQuartoWebsite"
+  title: "Cathal Mee"
+  favicon: "Images/fav.png"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - projects.qmd
+      - resume.qmd
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+    page-layout: full
+    code-fold: show
 
 editor: visual
 

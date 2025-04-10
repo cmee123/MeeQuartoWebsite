@@ -1,0 +1,11 @@
+---
+title: "The Most Important Factors in Determining Human Development"
+author: "Emma Clift & Cathal Mee"
+date: "11/08/2024"
+image: "HeaderImg.png"
+---
+
+Which quality of life measurements are most critical to improving a country’s human development index?
+
+
+<iframe width="80%" height="800" align="center" src="InitialReport.pdf"></iframe>
