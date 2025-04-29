@@ -1,0 +1,346 @@
+---
+title: "Mini Project 4"
+author: "Cathal Mee"
+date: "4/28/2025"
+image: "HeaderImg.png"
+---
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+library(tidyverse)
+library(tidytext)
+library(textdata)
+library(wordcloud)
+library(wordcloud2)
+library(viridis)
+library(ggthemes)
+library(gridExtra)
+```
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+EdSheeran <- read.csv("~/SDS264_F24/songs/csv/EdSheeran.csv")
+Drake <- read.csv("~/SDS264_F24/songs/csv/Drake.csv")
+NickiMinaj <- read.csv("~/SDS264_F24/songs/csv/NickiMinaj.csv")
+TaylorSwift <- read.csv("~/SDS264_F24/songs/csv/TaylorSwift.csv")
+
+EdTidy <- EdSheeran |> 
+  unnest_tokens(word, Lyric, token = "words") |> 
+  select(!X, !Year)
+
+DrakeTidy <- Drake |> 
+  unnest_tokens(word, Lyric, token = "words")
+
+NickiTidy <- NickiMinaj |> 
+  unnest_tokens(word, Lyric, token = "words")
+
+TaylorTidy <- TaylorSwift |> 
+  unnest_tokens(word, Lyric, token = "words")
+
+bing_sentiments <- get_sentiments(lexicon = "bing")
+afinn_sentiments <- get_sentiments(lexicon = "afinn")
+
+edCommon <- EdTidy |> 
+inner_join(bing_sentiments) |>
+  count(sentiment, word, sort = TRUE) |>
+  group_by(sentiment) |>
+  slice_max(n, n = 3) |>
+  ungroup() |>
+  ggplot(aes(x = fct_reorder(word, n), y = n, fill = sentiment)) +
+    geom_col() +  
+    coord_flip() +
+    facet_wrap(~ sentiment, scales = "free") +
+  labs(y = "Instances", x = "Word", title = "Ed Sheeran") +
+  theme(legend.position = "none")
+
+drakeCommon <- DrakeTidy |> 
+inner_join(bing_sentiments) |>
+  count(sentiment, word, sort = TRUE) |>
+  group_by(sentiment) |>
+  slice_max(n, n = 3) |>
+  ungroup() |>
+  ggplot(aes(x = fct_reorder(word, n), y = n, fill = sentiment)) +
+    geom_col() +  
+    coord_flip() +
+    facet_wrap(~ sentiment, scales = "free") +
+  labs(y = "Instances", x = "Word", title = "Drake") +
+  theme(legend.position = "none")
+
+nickiCommon <- NickiTidy |> 
+inner_join(bing_sentiments) |>
+  count(sentiment, word, sort = TRUE) |>
+  group_by(sentiment) |>
+  slice_max(n, n = 3) |>
+  ungroup() |>
+  ggplot(aes(x = fct_reorder(word, n), y = n, fill = sentiment)) +
+    geom_col() +  
+    coord_flip() +
+    facet_wrap(~ sentiment, scales = "free") +
+  labs(y = "Instances", x = "Word", title = "Nicki Minaj") +
+  theme(legend.position = "none")
+
+taylorCommon <- TaylorTidy |> 
+inner_join(bing_sentiments) |>
+  count(sentiment, word, sort = TRUE) |>
+  group_by(sentiment) |>
+  slice_max(n, n = 3) |>
+  ungroup() |>
+  ggplot(aes(x = fct_reorder(word, n), y = n, fill = sentiment)) +
+    geom_col() +  
+    coord_flip() +
+    facet_wrap(~ sentiment, scales = "free") +
+  labs(y = "Instances", x = "Word", title = "Taylor Swift") +
+  theme(legend.position = "none")
+
+EdT2 <- EdTidy |> 
+  mutate(Artist = "Ed Sheeran") |> 
+  select(Artist, word, Year, Title)
+
+TaylorT2 <- TaylorTidy |> 
+  mutate(Artist = "Taylor Swift") |> 
+  select(Artist, word, Year, Title)
+
+DrakeT2 <- DrakeTidy |> 
+  mutate(Artist = "Drake") |> 
+  select(Artist, word, Year, Title)
+
+NickiT2 <- NickiTidy |> 
+  mutate(Artist = "Nicki Minaj") |> 
+  select(Artist, word, Year, Title)
+
+all_artist_tbl <- EdT2 |> 
+  full_join(TaylorT2) |> 
+  full_join(DrakeT2) |> 
+  full_join(NickiT2) 
+
+
+EdT3 <- EdSheeran |> 
+  mutate(Artist = "Ed Sheeran")
+
+TaylorT3 <- TaylorSwift |> 
+  mutate(Artist = "Taylor Swift")
+
+DrakeT3 <- Drake |> 
+  mutate(Artist = "Drake")
+
+NickiT3 <- NickiMinaj |> 
+  mutate(Artist = "Nicki Minaj")
+
+all_artist_tbl2 <- EdT3 |> 
+  full_join(TaylorT3) |> 
+  full_join(DrakeT3) |> 
+  full_join(NickiT3) 
+
+```
+
+
+When I say Taylor Swift, what's the first thing that comes to mind? Probably love, heartbreak, or self-reflection. What about Drake?
+
+But although we think we understand the common themes within each artist's music, are these tropes backed up by their lyrics? And are these artists really as different as we think?
+
+To answer this question, let's start by analyzing basic information from a few artists.
+
+One way we could differentiate between genres is through their style of writing. We can start by analyzing the length of words to see if there is a common pattern, using the str_length function. 
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+all_artist_tbl |> 
+  group_by(Artist) |> 
+  summarize(avg_word_length = mean(str_length(word)))
+
+```
+
+This seems to have no correlation, as all word length averages are within 0.12 letters of each other. Maybe this will change if we look at the title length instead:
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+all_artist_tbl |> 
+  group_by(Artist) |> 
+  summarize(avg_title_length = mean(str_length(Title)))
+
+```
+
+From this table, we can see that Taylor Swift and Ed Sheeran have an average of 22/23 characters per title, while Drake and Nicki Minaj average about 14 characters per title. 
+
+I'm also curious to see how many songs each artist has that have one-word titles. To accomplish this, I used str_detect with a regex to filter for only one-word titles. 
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+one_word_titles <- all_artist_tbl2 |> 
+  filter(str_detect(all_artist_tbl2$Title, "^\\S+$")) |> 
+  count(Artist) |> 
+  rename(num_titles = n)
+
+one_word_titles
+
+```
+
+
+Time to start looking at the lyrics themselves. Below are charts for each artist showing the top 3 most common positive and negative words across all of their lyrics. To analyze the sentiments, these charts use Bing Sentiments.
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+grid.arrange(
+  taylorCommon,
+  drakeCommon,
+  edCommon,
+  nickiCommon
+)
+
+```
+
+We can see 2 main takeaways from these graphs. Firstly, all 5 of these artists have the exact same Top 3 positive words across all of their songs: Love, Like, and Right. These words are common across the Pop, Acoustic, and Rap genres. Secondly, we can see a difference in the styles of music based on the negative words used. Nicki Minaj and Drake, our two representatives from the Rap genre, have swear words as their Top 3 negatives. Ed Sheeran and Taylor Swift represent the Pop/Acoustic genre, with their Top 3 negative words being related to getting drunk and handling breakups.
+
+Let's take a closer look at the songs that use these positive words, and see if we can find a difference in the sentiments. The first step is to filter for the words using str_detect and a regular expression, and then make the charts. 
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+love_songs <- all_artist_tbl2 |> 
+  filter(str_detect(all_artist_tbl2$Lyric, "love")) |> 
+  mutate(Word = "love")
+like_songs <- all_artist_tbl2 |> 
+  filter(str_detect(all_artist_tbl2$Lyric, "like")) |> 
+  mutate(Word = "like")
+right_songs <- all_artist_tbl2 |> 
+  filter(str_detect(all_artist_tbl2$Lyric, "right")) |> 
+  mutate(Word = "right")
+
+
+all_positive_words <- love_songs |> 
+  full_join(like_songs) |> 
+  full_join(right_songs)
+
+all_positive_words |> 
+  unnest_tokens(word, Lyric, token = "words") |> 
+  select(Artist, word, Title, Word) |>
+  group_by(Artist, Title, Word) |> 
+  inner_join(afinn_sentiments) |> 
+  summarize(avg_sentiment = mean(value)) |>
+  ungroup() |> 
+  ggplot(aes(x=Title, y=avg_sentiment)) +
+  geom_col(aes(color = Word, fill=Word)) +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  facet_wrap(~Artist, scales="free") +
+  labs(x="Song Title", y="Average Sentiment", fill="Positive Word", color="Positive Word", title="Average Sentiments of Songs Containing a Top 3 Positive Word")
+
+```
+
+This graph shows the song title on the x axis, and the average sentiment on the y axis. Each graph shows a different artist, and the color represents which positive words are present in that song. These graphs only take into account songs that contain "Like", "Love", or "Right", which is most songs, so we can still analyze general trends. 
+
+These charts aren't super helpful since there's so much going on, but we can still see a few insights. Most obviously, Nicki Minaj has mostly negative songs, and Taylor Swift and Ed Sheeran have mostly positive songs. Drake is all over the place, with a mainly even number of positive and negative songs. This is similar to what we would expect based on their styles of music. 
+
+We can also see that songs that mention "Love" are commonly positive, with very few being negative. "Like" and "Love" don't seem to have much effect on the overall song sentiment. 
+
+Next, let's analyze each artist's sentiments over time to see if there are any shifts throughout each artist's career. This chart uses the Afinn Sentiments to analyze the text.
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+all_artist_tbl |> 
+  filter(Year > 1990) |> 
+  group_by(Artist, Year) |> 
+  inner_join(afinn_sentiments) |> 
+  summarize(avg_sentiment = mean(value)) |> 
+  ggplot(aes(x=Year, y=avg_sentiment)) +
+  geom_col(aes(fill = Artist)) +
+  facet_wrap(~Artist, scales = "free_x") +
+  labs(y="Average Sentiment", title="Average Yearly Sentiment") +
+  theme(legend.position = "none")
+```
+
+We can see that artists generally follow the same sentiments throughout their careers, with the exception of a few albums. This chart further emphasizes our previous conclusions. Drake has both positive and negative songs, so his music averages out to be fairly neutral. Nicki Minaj has almost exclusively negative music, while Ed Sheeran and Taylor Swift are almost exclusively positive. 
+
+
+We've identified a clear difference between these 2 genres (Rap being negative, and Pop/Acoustic being positive), but let's get a clearer look on which words differentiate each of the different artists. 
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+all_tfidf <- all_artist_tbl |> 
+  count(Artist, word, sort = TRUE) |> 
+  bind_tf_idf(word, Artist, n)
+
+all_tfidf |>
+  group_by(Artist) |>
+  arrange(desc(tf_idf)) |>
+  slice_max(tf_idf, n = 10) |>
+  ungroup() |>
+  ggplot(aes(x = fct_reorder(word, tf_idf), y = tf_idf, fill = Artist)) +
+    geom_col(show.legend = FALSE) +
+    coord_flip() +
+    facet_wrap(~Artist, scales = "free") +
+  labs(y="Importance", x="Word", title="Most Important Differentiating Words")
+
+```
+
+In these plots, we can see which words are common in one artist's lyrics and not another. This isn't super interesting, since most differentiating words are the artist's name or super specific phrases that are unique to one artist. For example, I would be shocked if any other artist besides Ed Sheeran uses "ohiohiohiohi" in their lyrics.
+
+Let's see if this changes when we consider 2-word combinations.
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+artist_twowords <- all_artist_tbl2 |>
+  unnest_tokens(bigram, Lyric, token = "ngrams", n = 2) |>
+  filter(bigram != "NA")
+
+artist_filtered <- artist_twowords |>
+  separate(bigram, c("word1", "word2"), sep = " ") |>
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) |>
+  count(word1, word2, sort = TRUE) |>
+  filter(!is.na(word1) & !is.na(word2))
+
+bigrams_united <- artist_filtered |>
+  unite(bigram, word1, word2, sep = " ")
+
+bigram_tf_idf <- artist_twowords |>
+  count(Artist, bigram) |>
+  bind_tf_idf(bigram, Artist, n) |>
+  arrange(desc(tf_idf)) 
+
+bigram_tf_idf |>
+  group_by(Artist) |>
+  arrange(desc(tf_idf)) |>
+  slice_max(tf_idf, n = 10) |>
+  ungroup() |>
+  ggplot(aes(x = fct_reorder(bigram, tf_idf), y = tf_idf, fill = Artist)) +
+    geom_col(show.legend = FALSE) +
+    coord_flip() +
+    facet_wrap(~Artist, scales = "free") +
+  labs(y="Importance", x="Bigram Phrase", title="Most Important Differentiating Phrases")
+```
+
+Here we can see which two-word combinations best identify each artist. For some reason, one common differentiating term is the artist's name. Although they reference themselves occasionally, this is mostly due to the inclusion of which artist is singing for songs that feature multiple artists. For example, in Taylor Swift's song Exile ft. Bon Iver, this lyrics in this dataset say "Taylor Swift" before her singing parts and "Justin Vernon" before his singing parts. Again, these phrases are mainly just silly phrases or made-up terms, and isn't super useful. 
+
+
+
